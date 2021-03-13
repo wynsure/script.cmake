@@ -1,0 +1,7 @@
+{
+    "name": "script.cmake",
+    "version": "0.0.0",
+    "dependencies": {
+        "@polycuber/script.cli": "^1.0.0"
+    }
+}
