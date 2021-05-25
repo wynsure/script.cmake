@@ -1,4 +1,5 @@
 const { script, command, file } = require("@polycuber/script.cli")
+const { parsePackageName } = require("./internal/utils")
 const Path = require("path")
 
 script((argv) => {
@@ -6,7 +7,7 @@ script((argv) => {
   console.log(`npm development pack of '${argv.name}'...`)
 
   // Compute package reference
-  packageName = argv.name
+  packageName = parsePackageName(argv.name)
   switch (argv.config.toLowerCase()) {
     case "debug": packageVersion = `${argv.version}-debug`; break
     case "relwithdebinfo": packageVersion = `${argv.version}-release`; break
@@ -19,13 +20,13 @@ script((argv) => {
   const previousPackageJson = file.read.json(packageJsonPath)
   file.write.json(packageJsonPath, {
     ...previousPackageJson,
-    name: packageName,
+    name: packageName.fullName,
     version: packageVersion,
   })
 
   // Pack and deliver to destination
   command.exec("npm pack", { cwd: argv.source })
-  file.move.toDir(Path.resolve(argv.source, `${packageName}-${packageVersion}.tgz`), argv.destination)
+  file.move.toDir(Path.resolve(argv.source, `${packageName.archiveName}-${packageVersion}.tgz`), argv.destination)
 
   // Clean generated files
   if (previousPackageJson) file.write.json(packageJsonPath, previousPackageJson)

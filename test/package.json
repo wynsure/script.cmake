@@ -1,0 +1,8 @@
+{
+    "name": "@myScope/myProject",
+    "version": "1.0.0-myPrerelease",
+    "license": "MIT",
+    "devDependencies": {
+        "script.cmake": ".."
+    }
+}

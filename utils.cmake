@@ -57,7 +57,7 @@ macro(set_target_postbuild_copy target)
     add_custom_command(
       TARGET ${target}
       POST_BUILD
-      WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+      WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
       COMMAND node copy-file
         --input "$<TARGET_FILE:${target}>"
         --destination "${destination}"

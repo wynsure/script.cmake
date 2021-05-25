@@ -6,11 +6,10 @@
 function(package_npm_archive LIST)
   cmake_parse_arguments(ARG "" "NAME;VERSION;CONFIG;DIRECTORY;DESTINATION" "DEPENDS" ${ARGN})
   if(NOT ARG_VERSION)
-    if(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
-      set(ARG_VERSION "${CMAKE_PROJECT_VERSION}")
-    else()
-      set(ARG_VERSION "${CMAKE_PROJECT_VERSION}-${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
-    endif()
+    set(ARG_VERSION "${CMAKE_PROJECT_VERSION}")
+  endif()
+  if(NOT CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
+    set(ARG_VERSION "${ARG_VERSION}-${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
   endif()
   if(NOT ARG_CONFIG) 
     set(ARG_CONFIG "$<CONFIG>")
@@ -20,7 +19,7 @@ function(package_npm_archive LIST)
   add_custom_command(
     OUTPUT ${outputArchive}
     DEPENDS ${ARG_DEPENDS}
-    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+    WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node pack_npm_archive
       --name "${ARG_NAME}"
       --version "${ARG_VERSION}"
@@ -33,14 +32,13 @@ function(package_npm_archive LIST)
 endfunction()
 
 
-function(package_zip_archive LIST packageTag sourceDir destinationDir)
+function(package_zip_archive LIST)
   cmake_parse_arguments(ARG "" "NAME;VERSION;CONFIG;DIRECTORY;DESTINATION" "DEPENDS" ${ARGN})
   if(NOT ARG_VERSION)
-    if(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
-      set(ARG_VERSION "${CMAKE_PROJECT_VERSION}")
-    else()
-      set(ARG_VERSION "${CMAKE_PROJECT_VERSION}-${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
-    endif()
+    set(ARG_VERSION "${CMAKE_PROJECT_VERSION}")
+  endif()
+  if(NOT CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
+    set(ARG_VERSION "${ARG_VERSION}-${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
   endif()
   if(NOT ARG_CONFIG) 
     set(ARG_CONFIG "$<CONFIG>")
@@ -100,7 +98,7 @@ function(append_static_directory_copy LIST)
   add_custom_command(
     OUTPUT ${outputFiles}
     DEPENDS ${inputFiles} ${ARG_DEPENDS}
-    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+    WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node copy-directory
       --filter ${ARG_FILTER}
       --sources ${ARG_FROM}
@@ -121,7 +119,7 @@ function(append_static_file_copy LIST)
     add_custom_command(
       OUTPUT ${outputFile}
       DEPENDS ${inputFile} ${ARG_DEPENDS}
-      WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+      WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
       COMMAND node copy-file
         --input ${inputFile}
         --output ${outputFile}
@@ -160,7 +158,7 @@ function(append_target_copy LIST)
     add_custom_command(
       OUTPUT ${outputFile}
       DEPENDS ${target} ${ARG_DEPENDS}
-      WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+      WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
       COMMAND node copy-file
         --input $<TARGET_PDB_FILE:${target}>
         --destination ${ARG_TO}
@@ -189,7 +187,7 @@ function(append_target_signed_copy LIST)
       add_custom_command(
         OUTPUT ${outputFile}
         DEPENDS ${target} ${ARG_DEPENDS}
-        WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+        WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
         COMMAND node copy-file
           --input $<TARGET_PDB_FILE:${target}>
           --destination ${ARG_TO}
@@ -219,7 +217,7 @@ function(append_target_library_copy LIST target destionationDir)
   add_custom_command(
     OUTPUT ${outputFile}
     DEPENDS ${target} ${ARG_DEPENDS}
-    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+    WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node copy-file
       --input $<TARGET_LINKER_FILE:${target}>
       --output ${outputFile}
@@ -239,7 +237,7 @@ function(append_transpiled_typescript LIST)
   add_custom_command(
     OUTPUT ${outputFile}
     DEPENDS ${ARG_TSCONFIG} ${ts_sources} ${ARG_DEPENDS}
-    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+    WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node make_transpiled_typescript
       --tsConfigFile ${ARG_TSCONFIG}
       --source ${ARG_SOURCE}
@@ -255,7 +253,7 @@ function(append_package_json LIST)
   add_custom_command(
     OUTPUT ${outputFile}
     DEPENDS ${ARG_SOURCE} ${ARG_DEPENDS}
-    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR}
+    WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node make_package_json
       --name ${ARG_NAME}
       --version ${CMAKE_PROJECT_VERSION}
