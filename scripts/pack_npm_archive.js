@@ -20,6 +20,7 @@ script((argv) => {
   const previousPackageJson = file.read.json(packageJsonPath)
   file.write.json(packageJsonPath, {
     ...previousPackageJson,
+    devDependencies: undefined,
     name: packageName.fullName,
     version: packageVersion,
   })
