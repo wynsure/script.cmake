@@ -1,4 +1,4 @@
-const { script, command, file } = require("@polycuber/script.cli")
+const { script, command, file } = require("@ewam/script.cli")
 const Path = require("path")
 
 script((argv) => {

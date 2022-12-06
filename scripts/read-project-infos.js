@@ -1,4 +1,4 @@
-const { script, file } = require("@polycuber/script.cli")
+const { script, file } = require("@ewam/script.cli")
 const { parsePackageName, parsePackageVersion } = require("./internal/utils")
 const process = require("process")
 
