@@ -1,7 +1,15 @@
 {
-    "name": "script.cmake",
-    "version": "0.0.0",
+    "name": "@ewam/script.cmake",
+    "version": "0.0.1",
+    "license": "MIT",
+    "author": {
+        "name": "Mphasis Wyde"
+    },
     "dependencies": {
-        "@polycuber/script.cli": "^1.0.0"
+        "@ewam/script.cli": "1.0.11"
+    },
+    "scripts": {
+        "pack": "npm pack",
+        "publish": "npm publish --strict-ssl false --access restricted"
     }
 }
