@@ -10,6 +10,6 @@
     },
     "scripts": {
         "pack": "npm pack",
-        "publish": "npm publish --strict-ssl false --access restricted"
+        "publish-package": "npm publish --strict-ssl false --access restricted"
     }
 }
