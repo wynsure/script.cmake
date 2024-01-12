@@ -6,7 +6,8 @@
         "name": "Mphasis Wyde"
     },
     "dependencies": {
-        "@ewam/script.cli": "1.0.11"
+        "@ewam/script.cli": "1.0.11",
+        "glob": "^10.3.10"
     },
     "scripts": {
         "pack": "npm pack",

@@ -1,15 +1,12 @@
 const { script, command, directory } = require("@ewam/script.cli")
-const Path = require("path")
 
 script((argv) => {
-  let filter
+  let filter = undefined
   if (argv.filter) {
-    const filterKeys = argv.filter.toLowerCase().split("|")
+    const pattern = new RegExp(argv.regex, "i")
     filter = (name) => {
-      const lname = name.toLowerCase()
-      if (filterKeys.indexOf(lname) >= 0) return true
-      if (filterKeys.indexOf("*" + Path.extname(lname)) >= 0) return true
-      return false
+      console.log("check", name, pattern)
+      return pattern.test(name)
     }
   }
   for (const source of argv.sources) {
@@ -24,8 +21,9 @@ script((argv) => {
   }
 }, {
   arguments: {
-    "filter": {
+    "regex": {
       type: "string",
+      required: true,
     },
     "sources": {
       type: "string",

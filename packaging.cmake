@@ -61,13 +61,13 @@ endfunction()
 # Static Files packaging functions
 ############################################
 
-function(find_directory_files_for_copy SRCFILES DESTFILES sourceDir destinationDir)
+function(find_directory_files_for_copy SRCFILES DESTFILES sourceDir destinationDir filePattern)
   file(GLOB files "${sourceDir}/*")
   foreach(filepath ${files})
     get_filename_component(filename ${filepath} NAME)
     if(IS_DIRECTORY ${filepath})
-      find_directory_files_for_copy(${SRCFILES} ${DESTFILES} "${sourceDir}/${filename}" "${destinationDir}/${filename}")
-    else()
+      find_directory_files_for_copy(${SRCFILES} ${DESTFILES} "${sourceDir}/${filename}" "${destinationDir}/${filename}" ${filePattern})
+    elseif("${filename}" MATCHES ${filePattern})
       list(APPEND ${SRCFILES} "${sourceDir}/${filename}")
       list(APPEND ${DESTFILES} "${destinationDir}/${filename}")
     endif()
@@ -80,27 +80,29 @@ function(append_static_directory_copy LIST)
   cmake_parse_arguments(ARG "" "FILTER;TO" "FROM;DEPENDS" ${ARGN})
   set(inputFiles)
   set(outputFiles)
+
+  # Transform the filter (pseudo pattern style) into a regex
+  if(ARG_FILTER)
+    string(REPLACE "." "\\." ARG_FILTER ${ARG_FILTER})
+    string(REPLACE "*" ".*" ARG_FILTER ${ARG_FILTER})
+  else()
+    set(ARG_FILTER ".*")
+  endif()
+
   foreach(sourceDir ${ARG_FROM})
     if(IS_DIRECTORY ${sourceDir})
-      find_directory_files_for_copy(inputFiles outputFiles ${sourceDir} ${ARG_TO})
+      find_directory_files_for_copy(inputFiles outputFiles ${sourceDir} ${ARG_TO} ${ARG_FILTER})
     else()
       message(FATAL_ERROR "The static directory '${sourceDir}' is invalid")
     endif()
   endforeach()
- 
-  # Replace '|' by '^|' due to a CMake bug
-  if(ARG_FILTER)
-    string(REPLACE "|" "^|" ARG_FILTER ${ARG_FILTER})
-  else()
-    set(ARG_FILTER "")
-  endif()
-
+  
   add_custom_command(
     OUTPUT ${outputFiles}
     DEPENDS ${inputFiles} ${ARG_DEPENDS}
     WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node copy-directory
-      --filter ${ARG_FILTER}
+      --regex ${ARG_FILTER}
       --sources ${ARG_FROM}
       --destination ${ARG_TO}
   )
@@ -263,4 +265,36 @@ function(append_package_json LIST)
       --production ${ARG_PRODUCTION}
   )
   set(${LIST} ${${LIST}} ${outputFile} PARENT_SCOPE)
+endfunction()
+
+############################################
+# Built Files packaging functions
+############################################
+
+function(copy_find_built_files LIST)
+  cmake_parse_arguments(ARG "" "REGEX;FROM;TO;OUTPUT" "DEPENDS" ${ARGN})
+
+  # Copy files only produced on build. They don't exist on config and their names can't be predicted.
+  # So output is not the list of files. Instead it should be a dependency of a custom target set by the caller.
+  # Such dependency will be evaluated allowing the command to run on build.
+  # Ex: 
+  # add_custom_target(dummy_copy ALL DEPENDS dummy_copy_output)
+  # copy_find_built_files(REGEX ... FROM ... TO ... OUTPUT dummy_copy_output)
+
+  # Dummy output. Anything that depends on this will always be rebuilt.
+  add_custom_command(
+    OUTPUT always_rebuild
+    COMMAND cmake -E echo
+  )
+
+  # Always run on build
+  add_custom_command(
+    OUTPUT "${ARG_OUTPUT}"
+    DEPENDS always_rebuild ${ARG_DEPENDS}
+    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR_OTL}
+    COMMAND node copy-find-files.mjs
+      --regex ${ARG_REGEX}
+      --from ${ARG_FROM}
+      --to ${ARG_TO}
+  )
 endfunction()
