@@ -2,10 +2,9 @@ const { script, command, directory } = require("@ewam/script.cli")
 
 script((argv) => {
   let filter = undefined
-  if (argv.filter) {
+  if (argv.regex) {
     const pattern = new RegExp(argv.regex, "i")
     filter = (name) => {
-      console.log("check", name, pattern)
       return pattern.test(name)
     }
   }

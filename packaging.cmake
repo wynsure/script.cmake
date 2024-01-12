@@ -291,7 +291,7 @@ function(copy_find_built_files LIST)
   add_custom_command(
     OUTPUT "${ARG_OUTPUT}"
     DEPENDS always_rebuild ${ARG_DEPENDS}
-    WORKING_DIRECTORY ${TOOLS_NODE_SCRIPT_DIR_OTL}
+    WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node copy-find-files.mjs
       --regex ${ARG_REGEX}
       --from ${ARG_FROM}
