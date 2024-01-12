@@ -97,6 +97,9 @@ function(append_static_directory_copy LIST)
     endif()
   endforeach()
   
+  # Replace '|' by '^|' due to a CMake bug
+  string(REPLACE "|" "^|" ARG_FILTER ${ARG_FILTER})
+
   add_custom_command(
     OUTPUT ${outputFiles}
     DEPENDS ${inputFiles} ${ARG_DEPENDS}
