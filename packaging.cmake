@@ -253,15 +253,21 @@ function(append_transpiled_typescript LIST)
 endfunction()
 
 function(append_package_json LIST)
-  cmake_parse_arguments(ARG "PRODUCTION;INSTALL" "NAME;SOURCE;DESTINATION" "DEPENDS" ${ARGN})
+  cmake_parse_arguments(ARG "PRODUCTION;INSTALL" "NAME;SOURCE;DESTINATION;VERSION" "DEPENDS" ${ARGN})
   set(outputFile "${ARG_DESTINATION}/package.json")
+  if(DEFINED ARG_VERSION)
+    set(fullVersion "${ARG_VERSION}")
+  else()
+    set(fullVersion "${CMAKE_PROJECT_VERSION}")
+  endif()
+
   add_custom_command(
     OUTPUT ${outputFile}
     DEPENDS ${ARG_SOURCE} ${ARG_DEPENDS}
     WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
     COMMAND node make_package_json
       --name ${ARG_NAME}
-      --version ${CMAKE_PROJECT_VERSION}
+      --version ${fullVersion}
       --source ${ARG_SOURCE}
       --destination ${ARG_DESTINATION}
       --install ${ARG_INSTALL}
