@@ -151,7 +151,7 @@ function(predict_target_binary_filename RESULT target)
 endfunction()
 
 function(append_target_copy LIST)
-  cmake_parse_arguments(ARG "" "TO" "TARGETS;DEPENDS" ${ARGN})
+  cmake_parse_arguments(ARG "SKIP_PDB" "TO" "TARGETS;DEPENDS" ${ARGN})
   foreach(target ${ARG_TARGETS})
   
     # Compute output file path
@@ -160,13 +160,20 @@ function(append_target_copy LIST)
     
     # Create copy command
     get_target_property(sourceDir ${target} RUNTIME_OUTPUT_DIRECTORY)
+    if (NOT ARG_SKIP_PDB)
+      add_custom_command(
+        OUTPUT ${outputFile}
+        DEPENDS ${target} ${ARG_DEPENDS}
+        WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
+        COMMAND node copy-file
+          --input $<TARGET_PDB_FILE:${target}>
+          --destination ${ARG_TO}
+      )
+    endif()
     add_custom_command(
       OUTPUT ${outputFile}
       DEPENDS ${target} ${ARG_DEPENDS}
       WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
-      COMMAND node copy-file
-        --input $<TARGET_PDB_FILE:${target}>
-        --destination ${ARG_TO}
       COMMAND node copy-file
         --input $<TARGET_FILE:${target}>
         --output ${outputFile}
@@ -177,7 +184,7 @@ function(append_target_copy LIST)
 endfunction()
 
 function(append_target_signed_copy LIST)
-  cmake_parse_arguments(ARG "" "TO" "TARGETS;DEPENDS" ${ARGN})
+  cmake_parse_arguments(ARG "SKIP_PDB" "TO" "TARGETS;DEPENDS" ${ARGN})
   if(DEVMODE)
     append_target_copy(commands ${LIST} ${ARGN})
   else()
@@ -189,13 +196,20 @@ function(append_target_signed_copy LIST)
       
       # Create copy command
       get_target_property(sourceDir ${target} RUNTIME_OUTPUT_DIRECTORY)
+      if (NOT ARG_SKIP_PDB)
+        add_custom_command(
+          OUTPUT ${outputFile}
+          DEPENDS ${target} ${ARG_DEPENDS}
+          WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
+          COMMAND node copy-file
+            --input $<TARGET_PDB_FILE:${target}>
+            --destination ${ARG_TO}
+        )
+      endif()
       add_custom_command(
         OUTPUT ${outputFile}
         DEPENDS ${target} ${ARG_DEPENDS}
         WORKING_DIRECTORY ${NODE_TOOLS_SCRIPT_DIR}
-        COMMAND node copy-file
-          --input $<TARGET_PDB_FILE:${target}>
-          --destination ${ARG_TO}
         COMMAND node copy-sign-file
           --input $<TARGET_FILE:${target}>
           --output ${outputFile}
